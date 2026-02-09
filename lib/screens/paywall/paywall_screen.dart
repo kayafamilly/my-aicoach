@@ -36,8 +36,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Future<void> _purchase(Package package) async {
     setState(() => _isPurchasing = true);
     try {
-      await PurchaseService.purchasePackage(package);
+      final completed = await PurchaseService.purchasePackage(package);
       if (!mounted) return;
+      if (!completed) {
+        // User cancelled — do nothing
+        return;
+      }
       final subProvider =
           Provider.of<SubscriptionProvider>(context, listen: false);
       await subProvider.checkStatus();
@@ -54,7 +58,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Purchase failed: $e')),
+          const SnackBar(
+              content: Text('Something went wrong. Please try again later.')),
         );
       }
     } finally {
@@ -84,7 +89,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Restore failed: $e')),
+          const SnackBar(
+              content: Text('Could not restore purchases. Please try again.')),
         );
       }
     } finally {

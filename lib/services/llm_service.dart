@@ -30,7 +30,19 @@ class LLMService {
           'max_tokens': 300,
           'temperature': 0.7,
           'messages': [
-            {'role': 'system', 'content': systemPrompt},
+            {
+              'role': 'system',
+              'content': 'IMPORTANT RULES YOU MUST ALWAYS FOLLOW:\n'
+                  '- You are a professional coach in a private one-on-one session.\n'
+                  '- NEVER use markdown formatting (no **, no ##, no *).\n'
+                  '- NEVER use bullet points, numbered lists, or dashes.\n'
+                  '- Write in plain conversational text only.\n'
+                  '- Keep every response under 3 short paragraphs.\n'
+                  '- Sound like a real human professional, not an AI.\n'
+                  '- Be warm, empathetic, and concise.\n'
+                  '- Ask one follow-up question at the end.\n\n'
+                  '$systemPrompt'
+            },
             ...messages,
           ],
         }),

@@ -49,17 +49,20 @@ class PurchaseService {
     }
   }
 
-  static Future<void> purchasePackage(Package package) async {
-    if (!_isConfigured) throw Exception('RevenueCat not configured');
+  /// Returns `true` if the purchase completed, `false` if the user cancelled.
+  static Future<bool> purchasePackage(Package package) async {
+    if (!_isConfigured) throw Exception('Purchase service is not available');
     try {
       final params = PurchaseParams.package(package);
       await Purchases.purchase(params);
+      return true;
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
-      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-        debugPrint('Purchase error: $e');
-        rethrow;
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
+        return false; // User cancelled — not an error
       }
+      debugPrint('Purchase error: $e');
+      rethrow;
     }
   }
 
