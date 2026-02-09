@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: (index) {
           setState(() => _selectedIndex = index);
           if (index == 1) {
-            if (subscriptionProvider.isPremium) {
+            if (subscriptionProvider.canCreateCoach) {
               Navigator.pushNamed(context, AppRoutes.createCoach);
             } else {
               Navigator.pushNamed(context, AppRoutes.paywall);

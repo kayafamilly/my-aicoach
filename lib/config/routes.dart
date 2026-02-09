@@ -6,6 +6,9 @@ import 'package:my_aicoach/screens/chat/chat_screen.dart';
 import 'package:my_aicoach/screens/create_coach/create_coach_screen.dart';
 import 'package:my_aicoach/screens/paywall/paywall_screen.dart';
 import 'package:my_aicoach/screens/profile/profile_screen.dart';
+import 'package:my_aicoach/screens/legal/privacy_policy_screen.dart';
+import 'package:my_aicoach/screens/legal/terms_of_service_screen.dart';
+import 'package:my_aicoach/screens/legal/help_support_screen.dart';
 
 class AppRoutes {
   static const String onboarding = '/onboarding';
@@ -15,6 +18,9 @@ class AppRoutes {
   static const String createCoach = '/create-coach';
   static const String paywall = '/paywall';
   static const String profile = '/profile';
+  static const String privacyPolicy = '/privacy-policy';
+  static const String termsOfService = '/terms-of-service';
+  static const String helpSupport = '/help-support';
 
   static Map<String, WidgetBuilder> get routes => {
         onboarding: (context) => const OnboardingScreen(),
@@ -22,6 +28,9 @@ class AppRoutes {
         createCoach: (context) => const CreateCoachScreen(),
         paywall: (context) => const PaywallScreen(),
         profile: (context) => const ProfileScreen(),
+        privacyPolicy: (context) => const PrivacyPolicyScreen(),
+        termsOfService: (context) => const TermsOfServiceScreen(),
+        helpSupport: (context) => const HelpSupportScreen(),
       };
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {

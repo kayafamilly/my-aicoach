@@ -65,6 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
       conversationId: _conversationId,
       content: content,
       systemPrompt: _coach.systemPrompt,
+      enableWebSearch: _coach.enableWebSearch,
     );
   }
 
@@ -82,7 +83,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_coach.name),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_coach.name),
+            if (_coach.enableWebSearch) ...[
+              const SizedBox(width: 8),
+              Icon(Icons.language,
+                  size: 16, color: Theme.of(context).colorScheme.primary),
+            ],
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),

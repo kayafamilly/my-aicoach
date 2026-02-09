@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_aicoach/database/database.dart';
 import 'package:my_aicoach/services/chat_service.dart';
 import 'package:my_aicoach/services/llm_service.dart';
+import 'package:my_aicoach/services/web_search_service.dart';
 
 class ChatProvider extends ChangeNotifier {
   final ChatService _chatService;
@@ -39,6 +40,7 @@ class ChatProvider extends ChangeNotifier {
     required int conversationId,
     required String content,
     required String systemPrompt,
+    bool enableWebSearch = false,
   }) async {
     if (content.trim().isEmpty) return;
 
@@ -58,6 +60,12 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Perform web search if enabled
+      String? webContext;
+      if (enableWebSearch) {
+        webContext = await WebSearchService.search(content);
+      }
+
       final history = await _chatService.getRecentMessages(conversationId);
       final messagesMap = history
           .map((m) => {
@@ -69,6 +77,7 @@ class ChatProvider extends ChangeNotifier {
       final response = await _llmService.sendMessage(
         systemPrompt: systemPrompt,
         messages: messagesMap,
+        webContext: webContext,
       );
 
       await _chatService.addAssistantMessage(conversationId, response);

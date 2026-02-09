@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:my_aicoach/providers/subscription_provider.dart';
+import 'package:my_aicoach/providers/theme_provider.dart';
 import 'package:my_aicoach/config/routes.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -51,7 +52,10 @@ class ProfileScreen extends StatelessWidget {
                             Text(
                               subscriptionProvider.isPremium
                                   ? 'You have access to all features'
-                                  : 'Upgrade to unlock all coaches',
+                                  : subscriptionProvider.tier ==
+                                          SubscriptionTier.trial
+                                      ? 'Trial active — ${subscriptionProvider.trialDaysRemaining} days left'
+                                      : 'Upgrade to create custom coaches',
                               style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.textTheme.bodySmall?.color
                                       ?.withValues(alpha: 0.7)),
@@ -84,20 +88,48 @@ class ProfileScreen extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.dark_mode),
-                  title: const Text('Dark Mode'),
-                  subtitle: const Text('Follows system setting'),
-                  trailing: Icon(
-                    Theme.of(context).brightness == Brightness.dark
-                        ? Icons.dark_mode
-                        : Icons.light_mode,
-                    color: theme.colorScheme.primary,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.palette, color: theme.colorScheme.primary),
+                      const SizedBox(width: 12),
+                      const Text('Appearance'),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, _) {
+                      return SegmentedButton<ThemeMode>(
+                        segments: const [
+                          ButtonSegment(
+                            value: ThemeMode.system,
+                            icon: Icon(Icons.settings_suggest),
+                            label: Text('System'),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.light,
+                            icon: Icon(Icons.light_mode),
+                            label: Text('Light'),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.dark,
+                            icon: Icon(Icons.dark_mode),
+                            label: Text('Dark'),
+                          ),
+                        ],
+                        selected: {themeProvider.themeMode},
+                        onSelectionChanged: (selection) {
+                          themeProvider.setThemeMode(selection.first);
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -122,21 +154,24 @@ class ProfileScreen extends StatelessWidget {
                   leading: const Icon(Icons.privacy_tip_outlined),
                   title: const Text('Privacy Policy'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () =>
+                      Navigator.pushNamed(context, AppRoutes.privacyPolicy),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.description_outlined),
                   title: const Text('Terms of Service'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () =>
+                      Navigator.pushNamed(context, AppRoutes.termsOfService),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.help_outline),
                   title: const Text('Help & Support'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () =>
+                      Navigator.pushNamed(context, AppRoutes.helpSupport),
                 ),
               ],
             ),

@@ -12,6 +12,7 @@ import 'package:my_aicoach/services/purchase_service.dart';
 import 'package:my_aicoach/providers/coach_provider.dart';
 import 'package:my_aicoach/providers/subscription_provider.dart';
 import 'package:my_aicoach/providers/chat_provider.dart';
+import 'package:my_aicoach/providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +51,7 @@ void main() async {
         Provider<LLMService>.value(value: llmService),
 
         // State Providers
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProxyProvider<CoachService, CoachProvider>(
           create: (context) => CoachProvider(coachService),
@@ -62,15 +64,22 @@ void main() async {
               previous ?? ChatProvider(chatSvc, llmSvc),
         ),
       ],
-      child: MyApp(showOnboarding: !hasSeenOnboarding),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) => MyApp(
+          showOnboarding: !hasSeenOnboarding,
+          themeMode: themeProvider.themeMode,
+        ),
+      ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
   final bool showOnboarding;
+  final ThemeMode themeMode;
 
-  const MyApp({super.key, required this.showOnboarding});
+  const MyApp(
+      {super.key, required this.showOnboarding, required this.themeMode});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +88,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       initialRoute: showOnboarding ? AppRoutes.onboarding : AppRoutes.home,
       routes: AppRoutes.routes,
       onGenerateRoute: AppRoutes.onGenerateRoute,

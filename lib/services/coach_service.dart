@@ -40,20 +40,20 @@ class CoachService {
         );
   }
 
-  // Seed default coaches if none exist
+  // Seed default coaches and clean up removed ones
   Future<void> seedCoachesIfNeeded() async {
     try {
       final String response =
           await rootBundle.loadString('assets/seed_coaches.json');
       final List<dynamic> data = json.decode(response);
 
-      // Soft-migration: ensure built-in coaches are always free
-      await (_db.update(_db.coaches)..where((t) => t.isCustom.equals(false)))
-          .write(const CoachesCompanion(isPremium: Value(false)));
+      // Collect valid seed names for cleanup
+      final seedNames = <String>{};
 
       for (final item in data) {
         final name = (item['name'] as String?)?.trim();
         if (name == null || name.isEmpty) continue;
+        seedNames.add(name);
 
         final existing = await (_db.select(_db.coaches)
               ..where((t) => t.isCustom.equals(false) & t.name.equals(name)))
@@ -74,6 +74,18 @@ class CoachService {
           await (_db.update(_db.coaches)
                 ..where((t) => t.id.equals(existing.id)))
               .write(companion);
+        }
+      }
+
+      // Remove old seed coaches no longer in the seed list
+      final allBuiltIn = await (_db.select(_db.coaches)
+            ..where((t) => t.isCustom.equals(false)))
+          .get();
+      for (final coach in allBuiltIn) {
+        if (!seedNames.contains(coach.name)) {
+          await (_db.delete(_db.coaches)..where((t) => t.id.equals(coach.id)))
+              .go();
+          debugPrint('Removed old seed coach: ${coach.name}');
         }
       }
 

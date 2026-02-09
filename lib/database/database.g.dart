@@ -63,6 +63,16 @@ class $CoachesTable extends Coaches with TableInfo<$CoachesTable, Coach> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_custom" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _enableWebSearchMeta =
+      const VerificationMeta('enableWebSearch');
+  @override
+  late final GeneratedColumn<bool> enableWebSearch = GeneratedColumn<bool>(
+      'enable_web_search', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("enable_web_search" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -80,6 +90,7 @@ class $CoachesTable extends Coaches with TableInfo<$CoachesTable, Coach> {
         avatarUrl,
         isPremium,
         isCustom,
+        enableWebSearch,
         createdAt
       ];
   @override
@@ -129,6 +140,12 @@ class $CoachesTable extends Coaches with TableInfo<$CoachesTable, Coach> {
       context.handle(_isCustomMeta,
           isCustom.isAcceptableOrUnknown(data['is_custom']!, _isCustomMeta));
     }
+    if (data.containsKey('enable_web_search')) {
+      context.handle(
+          _enableWebSearchMeta,
+          enableWebSearch.isAcceptableOrUnknown(
+              data['enable_web_search']!, _enableWebSearchMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -156,6 +173,8 @@ class $CoachesTable extends Coaches with TableInfo<$CoachesTable, Coach> {
           .read(DriftSqlType.bool, data['${effectivePrefix}is_premium'])!,
       isCustom: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_custom'])!,
+      enableWebSearch: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}enable_web_search'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -175,6 +194,7 @@ class Coach extends DataClass implements Insertable<Coach> {
   final String? avatarUrl;
   final bool isPremium;
   final bool isCustom;
+  final bool enableWebSearch;
   final DateTime createdAt;
   const Coach(
       {required this.id,
@@ -184,6 +204,7 @@ class Coach extends DataClass implements Insertable<Coach> {
       this.avatarUrl,
       required this.isPremium,
       required this.isCustom,
+      required this.enableWebSearch,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -197,6 +218,7 @@ class Coach extends DataClass implements Insertable<Coach> {
     }
     map['is_premium'] = Variable<bool>(isPremium);
     map['is_custom'] = Variable<bool>(isCustom);
+    map['enable_web_search'] = Variable<bool>(enableWebSearch);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -212,6 +234,7 @@ class Coach extends DataClass implements Insertable<Coach> {
           : Value(avatarUrl),
       isPremium: Value(isPremium),
       isCustom: Value(isCustom),
+      enableWebSearch: Value(enableWebSearch),
       createdAt: Value(createdAt),
     );
   }
@@ -227,6 +250,7 @@ class Coach extends DataClass implements Insertable<Coach> {
       avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
       isPremium: serializer.fromJson<bool>(json['isPremium']),
       isCustom: serializer.fromJson<bool>(json['isCustom']),
+      enableWebSearch: serializer.fromJson<bool>(json['enableWebSearch']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -241,6 +265,7 @@ class Coach extends DataClass implements Insertable<Coach> {
       'avatarUrl': serializer.toJson<String?>(avatarUrl),
       'isPremium': serializer.toJson<bool>(isPremium),
       'isCustom': serializer.toJson<bool>(isCustom),
+      'enableWebSearch': serializer.toJson<bool>(enableWebSearch),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -253,6 +278,7 @@ class Coach extends DataClass implements Insertable<Coach> {
           Value<String?> avatarUrl = const Value.absent(),
           bool? isPremium,
           bool? isCustom,
+          bool? enableWebSearch,
           DateTime? createdAt}) =>
       Coach(
         id: id ?? this.id,
@@ -262,6 +288,7 @@ class Coach extends DataClass implements Insertable<Coach> {
         avatarUrl: avatarUrl.present ? avatarUrl.value : this.avatarUrl,
         isPremium: isPremium ?? this.isPremium,
         isCustom: isCustom ?? this.isCustom,
+        enableWebSearch: enableWebSearch ?? this.enableWebSearch,
         createdAt: createdAt ?? this.createdAt,
       );
   Coach copyWithCompanion(CoachesCompanion data) {
@@ -276,6 +303,9 @@ class Coach extends DataClass implements Insertable<Coach> {
       avatarUrl: data.avatarUrl.present ? data.avatarUrl.value : this.avatarUrl,
       isPremium: data.isPremium.present ? data.isPremium.value : this.isPremium,
       isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
+      enableWebSearch: data.enableWebSearch.present
+          ? data.enableWebSearch.value
+          : this.enableWebSearch,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -290,6 +320,7 @@ class Coach extends DataClass implements Insertable<Coach> {
           ..write('avatarUrl: $avatarUrl, ')
           ..write('isPremium: $isPremium, ')
           ..write('isCustom: $isCustom, ')
+          ..write('enableWebSearch: $enableWebSearch, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -297,7 +328,7 @@ class Coach extends DataClass implements Insertable<Coach> {
 
   @override
   int get hashCode => Object.hash(id, name, description, systemPrompt,
-      avatarUrl, isPremium, isCustom, createdAt);
+      avatarUrl, isPremium, isCustom, enableWebSearch, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -309,6 +340,7 @@ class Coach extends DataClass implements Insertable<Coach> {
           other.avatarUrl == this.avatarUrl &&
           other.isPremium == this.isPremium &&
           other.isCustom == this.isCustom &&
+          other.enableWebSearch == this.enableWebSearch &&
           other.createdAt == this.createdAt);
 }
 
@@ -320,6 +352,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
   final Value<String?> avatarUrl;
   final Value<bool> isPremium;
   final Value<bool> isCustom;
+  final Value<bool> enableWebSearch;
   final Value<DateTime> createdAt;
   const CoachesCompanion({
     this.id = const Value.absent(),
@@ -329,6 +362,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
     this.avatarUrl = const Value.absent(),
     this.isPremium = const Value.absent(),
     this.isCustom = const Value.absent(),
+    this.enableWebSearch = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   CoachesCompanion.insert({
@@ -339,6 +373,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
     this.avatarUrl = const Value.absent(),
     this.isPremium = const Value.absent(),
     this.isCustom = const Value.absent(),
+    this.enableWebSearch = const Value.absent(),
     this.createdAt = const Value.absent(),
   })  : name = Value(name),
         description = Value(description),
@@ -351,6 +386,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
     Expression<String>? avatarUrl,
     Expression<bool>? isPremium,
     Expression<bool>? isCustom,
+    Expression<bool>? enableWebSearch,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -361,6 +397,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
       if (avatarUrl != null) 'avatar_url': avatarUrl,
       if (isPremium != null) 'is_premium': isPremium,
       if (isCustom != null) 'is_custom': isCustom,
+      if (enableWebSearch != null) 'enable_web_search': enableWebSearch,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -373,6 +410,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
       Value<String?>? avatarUrl,
       Value<bool>? isPremium,
       Value<bool>? isCustom,
+      Value<bool>? enableWebSearch,
       Value<DateTime>? createdAt}) {
     return CoachesCompanion(
       id: id ?? this.id,
@@ -382,6 +420,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       isPremium: isPremium ?? this.isPremium,
       isCustom: isCustom ?? this.isCustom,
+      enableWebSearch: enableWebSearch ?? this.enableWebSearch,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -410,6 +449,9 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
     if (isCustom.present) {
       map['is_custom'] = Variable<bool>(isCustom.value);
     }
+    if (enableWebSearch.present) {
+      map['enable_web_search'] = Variable<bool>(enableWebSearch.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -426,6 +468,7 @@ class CoachesCompanion extends UpdateCompanion<Coach> {
           ..write('avatarUrl: $avatarUrl, ')
           ..write('isPremium: $isPremium, ')
           ..write('isCustom: $isCustom, ')
+          ..write('enableWebSearch: $enableWebSearch, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1239,6 +1282,7 @@ typedef $$CoachesTableCreateCompanionBuilder = CoachesCompanion Function({
   Value<String?> avatarUrl,
   Value<bool> isPremium,
   Value<bool> isCustom,
+  Value<bool> enableWebSearch,
   Value<DateTime> createdAt,
 });
 typedef $$CoachesTableUpdateCompanionBuilder = CoachesCompanion Function({
@@ -1249,6 +1293,7 @@ typedef $$CoachesTableUpdateCompanionBuilder = CoachesCompanion Function({
   Value<String?> avatarUrl,
   Value<bool> isPremium,
   Value<bool> isCustom,
+  Value<bool> enableWebSearch,
   Value<DateTime> createdAt,
 });
 
@@ -1301,6 +1346,10 @@ class $$CoachesTableFilterComposer
 
   ColumnFilters<bool> get isCustom => $composableBuilder(
       column: $table.isCustom, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get enableWebSearch => $composableBuilder(
+      column: $table.enableWebSearch,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -1358,6 +1407,10 @@ class $$CoachesTableOrderingComposer
   ColumnOrderings<bool> get isCustom => $composableBuilder(
       column: $table.isCustom, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get enableWebSearch => $composableBuilder(
+      column: $table.enableWebSearch,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 }
@@ -1391,6 +1444,9 @@ class $$CoachesTableAnnotationComposer
 
   GeneratedColumn<bool> get isCustom =>
       $composableBuilder(column: $table.isCustom, builder: (column) => column);
+
+  GeneratedColumn<bool> get enableWebSearch => $composableBuilder(
+      column: $table.enableWebSearch, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1447,6 +1503,7 @@ class $$CoachesTableTableManager extends RootTableManager<
             Value<String?> avatarUrl = const Value.absent(),
             Value<bool> isPremium = const Value.absent(),
             Value<bool> isCustom = const Value.absent(),
+            Value<bool> enableWebSearch = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               CoachesCompanion(
@@ -1457,6 +1514,7 @@ class $$CoachesTableTableManager extends RootTableManager<
             avatarUrl: avatarUrl,
             isPremium: isPremium,
             isCustom: isCustom,
+            enableWebSearch: enableWebSearch,
             createdAt: createdAt,
           ),
           createCompanionCallback: ({
@@ -1467,6 +1525,7 @@ class $$CoachesTableTableManager extends RootTableManager<
             Value<String?> avatarUrl = const Value.absent(),
             Value<bool> isPremium = const Value.absent(),
             Value<bool> isCustom = const Value.absent(),
+            Value<bool> enableWebSearch = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               CoachesCompanion.insert(
@@ -1477,6 +1536,7 @@ class $$CoachesTableTableManager extends RootTableManager<
             avatarUrl: avatarUrl,
             isPremium: isPremium,
             isCustom: isCustom,
+            enableWebSearch: enableWebSearch,
             createdAt: createdAt,
           ),
           withReferenceMapper: (p0) => p0

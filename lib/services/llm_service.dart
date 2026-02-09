@@ -9,6 +9,7 @@ class LLMService {
   Future<String> sendMessage({
     required String systemPrompt,
     required List<Map<String, String>> messages,
+    String? webContext,
   }) async {
     try {
       final apiKey = dotenv.env['OPENROUTER_API_KEY'];
@@ -42,6 +43,7 @@ class LLMService {
                   '- Be warm, empathetic, and concise.\n'
                   '- Ask one follow-up question at the end.\n\n'
                   '$systemPrompt'
+                  '${webContext != null ? "\n\nRELEVANT WEB INFORMATION (use naturally if helpful, do not list sources):\n$webContext" : ""}'
             },
             ...messages,
           ],

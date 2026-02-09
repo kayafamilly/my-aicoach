@@ -9,5 +9,7 @@ class Coaches extends Table {
   TextColumn get avatarUrl => text().nullable()();
   BoolColumn get isPremium => boolean().withDefault(const Constant(false))();
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
+  BoolColumn get enableWebSearch =>
+      boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
