@@ -55,7 +55,7 @@ class CoachDetailScreen extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.7)
+                          Colors.black.withValues(alpha: 0.7)
                         ],
                       ),
                     ),
@@ -96,7 +96,8 @@ class CoachDetailScreen extends StatelessWidget {
                   Text(
                     coach.description,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.textTheme.bodyLarge?.color?.withOpacity(0.8),
+                      color: theme.textTheme.bodyLarge?.color
+                          ?.withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 32),

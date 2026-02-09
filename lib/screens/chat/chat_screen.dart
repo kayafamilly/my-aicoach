@@ -125,7 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               Icon(Icons.chat_bubble_outline,
                                   size: 64,
                                   color: theme.colorScheme.primary
-                                      .withOpacity(0.5)),
+                                      .withValues(alpha: 0.5)),
                               const SizedBox(height: 16),
                               Text(
                                 'Start your coaching session',
@@ -137,7 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 'Ask ${_coach.name} anything!',
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.textTheme.bodyMedium?.color
-                                        ?.withOpacity(0.7)),
+                                        ?.withValues(alpha: 0.7)),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -180,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
               color: theme.colorScheme.surface,
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -2))
               ],

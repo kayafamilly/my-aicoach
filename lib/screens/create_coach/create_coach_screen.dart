@@ -174,8 +174,8 @@ class _CreateCoachScreenState extends State<CreateCoachScreen> {
                   Text(
                     'This defines how your coach will respond. Be specific about the tone, expertise, and approach.',
                     style: theme.textTheme.bodySmall?.copyWith(
-                        color:
-                            theme.textTheme.bodySmall?.color?.withOpacity(0.7)),
+                        color: theme.textTheme.bodySmall?.color
+                            ?.withValues(alpha: 0.7)),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(

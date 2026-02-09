@@ -79,16 +79,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.search_off, size: 64, color: theme.colorScheme.onSurfaceVariant),
+                                    Icon(Icons.search_off,
+                                        size: 64,
+                                        color:
+                                            theme.colorScheme.onSurfaceVariant),
                                     const SizedBox(height: 16),
-                                    Text('No coaches found', style: theme.textTheme.titleMedium),
+                                    Text('No coaches found',
+                                        style: theme.textTheme.titleMedium),
                                   ],
                                 ),
                               ),
                             )
                           : GridView.builder(
                               padding: const EdgeInsets.all(16),
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
                                 childAspectRatio: 0.75,
                                 crossAxisSpacing: 16,
@@ -97,16 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemCount: coachProvider.coaches.length,
                               itemBuilder: (context, index) {
                                 final coach = coachProvider.coaches[index];
-                                final isLocked = coach.isPremium && !subscriptionProvider.isPremium;
                                 return CoachCard(
                                   coach: coach,
-                                  isLocked: isLocked,
                                   onTap: () {
-                                    if (isLocked) {
-                                      Navigator.pushNamed(context, AppRoutes.paywall);
-                                    } else {
-                                      Navigator.pushNamed(context, AppRoutes.coachDetail, arguments: coach);
-                                    }
+                                    Navigator.pushNamed(
+                                        context, AppRoutes.coachDetail,
+                                        arguments: coach);
                                   },
                                 );
                               },
@@ -133,9 +134,18 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.add_circle_outline), selectedIcon: Icon(Icons.add_circle), label: 'Create'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Home'),
+          NavigationDestination(
+              icon: Icon(Icons.add_circle_outline),
+              selectedIcon: Icon(Icons.add_circle),
+              label: 'Create'),
+          NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profile'),
         ],
       ),
     );

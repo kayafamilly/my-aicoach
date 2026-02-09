@@ -28,8 +28,10 @@ class MessageBubble extends StatelessWidget {
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
-            bottomLeft: isUser ? const Radius.circular(16) : Radius.circular(0),
-            bottomRight: isUser ? Radius.circular(0) : const Radius.circular(16),
+            bottomLeft:
+                isUser ? const Radius.circular(16) : const Radius.circular(0),
+            bottomRight:
+                isUser ? const Radius.circular(0) : const Radius.circular(16),
           ),
         ),
         padding: const EdgeInsets.all(12),
@@ -51,7 +53,7 @@ class MessageBubble extends StatelessWidget {
                 color: (isUser
                         ? theme.colorScheme.onPrimaryContainer
                         : theme.colorScheme.onSurfaceVariant)
-                    .withOpacity(0.6),
+                    .withValues(alpha: 0.6),
                 fontSize: 10,
               ),
             ),

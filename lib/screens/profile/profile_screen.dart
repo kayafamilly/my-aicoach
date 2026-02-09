@@ -54,7 +54,7 @@ class ProfileScreen extends StatelessWidget {
                                   : 'Upgrade to unlock all coaches',
                               style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.textTheme.bodySmall?.color
-                                      ?.withOpacity(0.7)),
+                                      ?.withValues(alpha: 0.7)),
                             ),
                           ],
                         ),

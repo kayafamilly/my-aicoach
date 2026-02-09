@@ -5,13 +5,11 @@ import 'package:my_aicoach/widgets/premium_badge.dart';
 class CoachCard extends StatelessWidget {
   final Coach coach;
   final VoidCallback onTap;
-  final bool isLocked;
 
   const CoachCard({
     super.key,
     required this.coach,
     required this.onTap,
-    this.isLocked = false,
   });
 
   @override
@@ -36,29 +34,22 @@ class CoachCard extends StatelessWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (ctx, err, stack) => Container(
                             color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(Icons.person, size: 48, color: theme.colorScheme.onSurfaceVariant),
+                            child: Icon(Icons.person,
+                                size: 48,
+                                color: theme.colorScheme.onSurfaceVariant),
                           ),
                         )
                       : Container(
                           color: theme.colorScheme.surfaceContainerHighest,
-                          child: Icon(Icons.person, size: 48, color: theme.colorScheme.onSurfaceVariant),
+                          child: Icon(Icons.person,
+                              size: 48,
+                              color: theme.colorScheme.onSurfaceVariant),
                         ),
                   if (coach.isPremium)
                     const Positioned(
                       top: 8,
                       right: 8,
                       child: PremiumBadge(),
-                    ),
-                  if (isLocked)
-                    Container(
-                      color: Colors.black.withOpacity(0.5),
-                      child: const Center(
-                        child: Icon(
-                          Icons.lock,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ),
                     ),
                 ],
               ),
@@ -82,7 +73,8 @@ class CoachCard extends StatelessWidget {
                     Text(
                       coach.description,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+                        color: theme.textTheme.bodySmall?.color
+                            ?.withValues(alpha: 0.7),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

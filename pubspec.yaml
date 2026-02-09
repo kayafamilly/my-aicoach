@@ -45,4 +45,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - .env
+    - .env.example
     - assets/seed_coaches.json

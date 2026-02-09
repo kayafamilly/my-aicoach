@@ -17,19 +17,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingPageModel> _pages = [
     OnboardingPageModel(
       title: 'Your Personal AI Coach',
-      description: 'Get personalized guidance for every aspect of your life, available 24/7.',
+      description:
+          'Get personalized guidance for every aspect of your life, available 24/7.',
       icon: Icons.psychology,
       color: const Color(0xFF4A90E2),
     ),
     OnboardingPageModel(
       title: 'Expert Perspectives',
-      description: 'Switch between different coaching styles: Life, Career, Fitness, and more.',
+      description:
+          'Switch between different coaching styles: Life, Career, Fitness, and more.',
       icon: Icons.groups,
       color: const Color(0xFF50E3C2),
     ),
     OnboardingPageModel(
       title: 'Achieve Your Goals',
-      description: 'Set goals, track progress, and unlock your full potential with AI-powered insights.',
+      description:
+          'Set goals, track progress, and unlock your full potential with AI-powered insights.',
       icon: Icons.rocket_launch,
       color: const Color(0xFFFF5252),
     ),
@@ -38,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -87,7 +90,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       shape: const CircleBorder(),
                       padding: const EdgeInsets.all(20),
                     ),
-                    child: Icon(_isLastPage ? Icons.check : Icons.arrow_forward),
+                    child:
+                        Icon(_isLastPage ? Icons.check : Icons.arrow_forward),
                   ),
                 ],
               ),
@@ -100,7 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildPage(BuildContext context, OnboardingPageModel page) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.all(32.0),
       child: Column(
@@ -109,7 +113,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: page.color.withOpacity(0.1),
+              color: page.color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -131,7 +135,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             page.description,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
+              color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
             ),
           ),
         ],
