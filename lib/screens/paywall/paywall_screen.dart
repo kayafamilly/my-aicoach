@@ -43,9 +43,6 @@ class _PaywallScreenState extends State<PaywallScreen> {
       final subProvider =
           Provider.of<SubscriptionProvider>(context, listen: false);
       await subProvider.checkStatus();
-      if (!subProvider.isPremium) {
-        subProvider.setTestPremium(true);
-      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -148,10 +145,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   _buildFeatureItem(
                       theme, Icons.language, 'Web search-enhanced responses'),
                   _buildFeatureItem(
+                      theme, Icons.storefront, 'Access the Community Market'),
+                  _buildFeatureItem(
                       theme, Icons.support_agent, 'Priority support'),
                   const SizedBox(height: 32),
 
-                  // Real offerings from RevenueCat
+                  // Subscription offerings from RevenueCat
                   if (_offerings?.current?.availablePackages.isNotEmpty == true)
                     ..._offerings!.current!.availablePackages
                         .map((package) => Padding(
@@ -177,69 +176,50 @@ class _PaywallScreenState extends State<PaywallScreen> {
                               ),
                             ))
                   else ...[
-                    // Sandbox / test mode options
-                    _buildPlanCard(
-                      theme,
-                      title: 'Monthly',
-                      price: '\$4.99/mo',
-                      subtitle: 'Unlimited custom coaches',
-                      onTap: _isPurchasing
-                          ? null
-                          : () {
-                              final sp = Provider.of<SubscriptionProvider>(
-                                  context,
-                                  listen: false);
-                              sp.setTestPremium(true);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Premium activated (Test Mode)')),
-                              );
-                              Navigator.pop(context);
-                            },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildPlanCard(
-                      theme,
-                      title: 'Yearly',
-                      price: '\$39.99/yr',
-                      subtitle: 'Save 33% — best value',
-                      highlight: true,
-                      onTap: _isPurchasing
-                          ? null
-                          : () {
-                              final sp = Provider.of<SubscriptionProvider>(
-                                  context,
-                                  listen: false);
-                              sp.setTestPremium(true);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Premium activated (Test Mode)')),
-                              );
-                              Navigator.pop(context);
-                            },
-                    ),
-                    const SizedBox(height: 12),
-                    if (!hasTrialStarted)
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: _isPurchasing ? null : _startTrial,
-                          style: OutlinedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16)),
-                          child: const Text('Start 7-Day Free Trial (1 coach)'),
-                        ),
+                    // Offerings not available — show fallback
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '(Sandbox mode — no real charge)',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.outline),
-                      textAlign: TextAlign.center,
+                      child: Column(
+                        children: [
+                          Icon(Icons.cloud_off,
+                              size: 40, color: theme.colorScheme.outline),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Could not load subscription plans.',
+                            style: theme.textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Please check your internet connection and try again.',
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: theme.colorScheme.outline),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          OutlinedButton(
+                            onPressed: _loadOfferings,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
+                  const SizedBox(height: 16),
+                  if (!hasTrialStarted)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: _isPurchasing ? null : _startTrial,
+                        style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16)),
+                        child: const Text('Start 7-Day Free Trial (1 coach)'),
+                      ),
+                    ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: _isPurchasing ? null : _restore,
@@ -271,74 +251,6 @@ class _PaywallScreenState extends State<PaywallScreen> {
           const SizedBox(width: 16),
           Expanded(child: Text(text, style: theme.textTheme.bodyLarge)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPlanCard(
-    ThemeData theme, {
-    required String title,
-    required String price,
-    required String subtitle,
-    bool highlight = false,
-    VoidCallback? onTap,
-  }) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        elevation: highlight ? 4 : 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: highlight
-              ? BorderSide(color: theme.colorScheme.primary, width: 2)
-              : BorderSide.none,
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(title,
-                              style: theme.textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold)),
-                          if (highlight) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.primary,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text('BEST',
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                      color: theme.colorScheme.onPrimary)),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(subtitle,
-                          style: theme.textTheme.bodySmall
-                              ?.copyWith(color: theme.colorScheme.outline)),
-                    ],
-                  ),
-                ),
-                Text(price,
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

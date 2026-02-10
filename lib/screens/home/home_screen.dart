@@ -122,13 +122,20 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: (index) {
           setState(() => _selectedIndex = index);
           if (index == 1) {
+            if (subscriptionProvider.canAccessMarket) {
+              Navigator.pushNamed(context, AppRoutes.market);
+            } else {
+              Navigator.pushNamed(context, AppRoutes.paywall);
+            }
+            setState(() => _selectedIndex = 0);
+          } else if (index == 2) {
             if (subscriptionProvider.canCreateCoach) {
               Navigator.pushNamed(context, AppRoutes.createCoach);
             } else {
               Navigator.pushNamed(context, AppRoutes.paywall);
             }
             setState(() => _selectedIndex = 0);
-          } else if (index == 2) {
+          } else if (index == 3) {
             Navigator.pushNamed(context, AppRoutes.profile);
             setState(() => _selectedIndex = 0);
           }
@@ -138,6 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: 'Home'),
+          NavigationDestination(
+              icon: Icon(Icons.storefront_outlined),
+              selectedIcon: Icon(Icons.storefront),
+              label: 'Market'),
           NavigationDestination(
               icon: Icon(Icons.add_circle_outline),
               selectedIcon: Icon(Icons.add_circle),

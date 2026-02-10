@@ -48,3 +48,4 @@ flutter:
     - .env
     - .env.example
     - assets/seed_coaches.json
+    - assets/market_coaches.json

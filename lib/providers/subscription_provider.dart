@@ -34,6 +34,9 @@ class SubscriptionProvider extends ChangeNotifier {
     return false; // free tier
   }
 
+  /// Whether the user can access the Market (premium only, not trial)
+  bool get canAccessMarket => _tier == SubscriptionTier.premium;
+
   /// Days remaining in trial, or 0
   int get trialDaysRemaining {
     if (_trialStartDate == null) return trialDurationDays;
@@ -105,13 +108,6 @@ class SubscriptionProvider extends ChangeNotifier {
     _trialCoachCount++;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_trialCoachCountKey, _trialCoachCount);
-    notifyListeners();
-  }
-
-  void setTestPremium(bool value) {
-    _isPremium = value;
-    _isLoading = false;
-    _updateTier();
     notifyListeners();
   }
 
