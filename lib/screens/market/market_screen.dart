@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:my_aicoach/database/database.dart';
 import 'package:my_aicoach/providers/coach_provider.dart';
+import 'package:my_aicoach/widgets/coach_avatar.dart';
 
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -16,6 +17,8 @@ class MarketScreen extends StatefulWidget {
 class _MarketScreenState extends State<MarketScreen> {
   List<Map<String, dynamic>> _marketCoaches = [];
   List<Map<String, dynamic>> _filtered = [];
+  List<Map<String, dynamic>> _userCoaches = [];
+  List<Map<String, dynamic>> _filteredUser = [];
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
 
@@ -36,9 +39,29 @@ class _MarketScreenState extends State<MarketScreen> {
       final String response =
           await rootBundle.loadString('assets/market_coaches.json');
       final List<dynamic> data = json.decode(response);
+
+      // Load user's custom coaches from local DB
+      if (!mounted) return;
+      final db = Provider.of<AppDatabase>(context, listen: false);
+      final customCoaches = await (db.select(db.coaches)
+            ..where((t) => t.isCustom.equals(true)))
+          .get();
+      final userMaps = customCoaches
+          .map((c) => {
+                'name': c.name,
+                'description': c.description,
+                'systemPrompt': c.systemPrompt,
+                'creator': 'You',
+                'downloads': 0,
+                'isLocal': true,
+              })
+          .toList();
+
       setState(() {
         _marketCoaches = data.cast<Map<String, dynamic>>();
         _filtered = List.from(_marketCoaches);
+        _userCoaches = userMaps;
+        _filteredUser = List.from(_userCoaches);
         _isLoading = false;
       });
     } catch (e) {
@@ -51,12 +74,18 @@ class _MarketScreenState extends State<MarketScreen> {
     setState(() {
       if (query.isEmpty) {
         _filtered = List.from(_marketCoaches);
+        _filteredUser = List.from(_userCoaches);
       } else {
+        final q = query.toLowerCase();
         _filtered = _marketCoaches.where((c) {
           final name = (c['name'] as String? ?? '').toLowerCase();
           final desc = (c['description'] as String? ?? '').toLowerCase();
-          return name.contains(query.toLowerCase()) ||
-              desc.contains(query.toLowerCase());
+          return name.contains(q) || desc.contains(q);
+        }).toList();
+        _filteredUser = _userCoaches.where((c) {
+          final name = (c['name'] as String? ?? '').toLowerCase();
+          final desc = (c['description'] as String? ?? '').toLowerCase();
+          return name.contains(q) || desc.contains(q);
         }).toList();
       }
     });
@@ -134,11 +163,9 @@ class _MarketScreenState extends State<MarketScreen> {
                   ),
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundColor: theme.colorScheme.primaryContainer,
-                        child: Icon(Icons.smart_toy,
-                            color: theme.colorScheme.primary, size: 28),
+                      CoachAvatar(
+                        name: coach['name'] as String? ?? '',
+                        size: 56,
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -196,6 +223,78 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 
+  Widget _buildCoachTile(ThemeData theme, Map<String, dynamic> coach,
+      {bool isLocal = false}) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16),
+        leading: CoachAvatar(
+          name: coach['name'] as String? ?? '',
+          size: 44,
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                coach['name'] as String? ?? '',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            if (isLocal)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.tertiaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text('You',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onTertiaryContainer,
+                        fontWeight: FontWeight.bold)),
+              ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              coach['description'] as String? ?? '',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.person, size: 14, color: theme.colorScheme.outline),
+                const SizedBox(width: 4),
+                Text(
+                  coach['creator'] as String? ?? 'Community',
+                  style: theme.textTheme.labelSmall
+                      ?.copyWith(color: theme.colorScheme.outline),
+                ),
+                if (!isLocal) ...[
+                  const SizedBox(width: 16),
+                  Icon(Icons.download,
+                      size: 14, color: theme.colorScheme.outline),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${coach['downloads'] ?? 0}',
+                    style: theme.textTheme.labelSmall
+                        ?.copyWith(color: theme.colorScheme.outline),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+        onTap: isLocal ? null : () => _showCoachDetail(coach),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -248,7 +347,7 @@ class _MarketScreenState extends State<MarketScreen> {
                   ),
                 ),
                 Expanded(
-                  child: _filtered.isEmpty
+                  child: (_filtered.isEmpty && _filteredUser.isEmpty)
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -262,70 +361,32 @@ class _MarketScreenState extends State<MarketScreen> {
                             ],
                           ),
                         )
-                      : ListView.builder(
+                      : ListView(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: _filtered.length,
-                          itemBuilder: (context, index) {
-                            final coach = _filtered[index];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(16),
-                                leading: CircleAvatar(
-                                  backgroundColor:
-                                      theme.colorScheme.primaryContainer,
-                                  child: Icon(Icons.smart_toy,
-                                      color: theme.colorScheme.primary),
-                                ),
-                                title: Text(
-                                  coach['name'] as String? ?? '',
-                                  style: theme.textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      coach['description'] as String? ?? '',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.person,
-                                            size: 14,
-                                            color: theme.colorScheme.outline),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          coach['creator'] as String? ??
-                                              'Community',
-                                          style: theme.textTheme.labelSmall
-                                              ?.copyWith(
-                                                  color: theme
-                                                      .colorScheme.outline),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Icon(Icons.download,
-                                            size: 14,
-                                            color: theme.colorScheme.outline),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          '${coach['downloads'] ?? 0}',
-                                          style: theme.textTheme.labelSmall
-                                              ?.copyWith(
-                                                  color: theme
-                                                      .colorScheme.outline),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                onTap: () => _showCoachDetail(coach),
+                          children: [
+                            if (_filteredUser.isNotEmpty) ...[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 4, bottom: 8),
+                                child: Text('Your Coaches',
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.primary)),
                               ),
-                            );
-                          },
+                              ..._filteredUser.map((coach) =>
+                                  _buildCoachTile(theme, coach, isLocal: true)),
+                              const SizedBox(height: 16),
+                            ],
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Text('Community Coaches',
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.primary)),
+                            ),
+                            ..._filtered
+                                .map((coach) => _buildCoachTile(theme, coach)),
+                          ],
                         ),
                 ),
               ],

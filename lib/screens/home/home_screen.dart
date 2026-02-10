@@ -125,14 +125,16 @@ class _HomeScreenState extends State<HomeScreen> {
             if (subscriptionProvider.canAccessMarket) {
               Navigator.pushNamed(context, AppRoutes.market);
             } else {
-              Navigator.pushNamed(context, AppRoutes.paywall);
+              Navigator.pushNamed(context, AppRoutes.paywall,
+                  arguments: 'market');
             }
             setState(() => _selectedIndex = 0);
           } else if (index == 2) {
             if (subscriptionProvider.canCreateCoach) {
               Navigator.pushNamed(context, AppRoutes.createCoach);
             } else {
-              Navigator.pushNamed(context, AppRoutes.paywall);
+              Navigator.pushNamed(context, AppRoutes.paywall,
+                  arguments: 'create');
             }
             setState(() => _selectedIndex = 0);
           } else if (index == 3) {

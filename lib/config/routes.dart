@@ -28,7 +28,6 @@ class AppRoutes {
         onboarding: (context) => const OnboardingScreen(),
         home: (context) => const HomeScreen(),
         createCoach: (context) => const CreateCoachScreen(),
-        paywall: (context) => const PaywallScreen(),
         profile: (context) => const ProfileScreen(),
         privacyPolicy: (context) => const PrivacyPolicyScreen(),
         termsOfService: (context) => const TermsOfServiceScreen(),
@@ -47,6 +46,12 @@ class AppRoutes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ChatScreen(),
+        );
+      case paywall:
+        final source = settings.arguments as String? ?? 'default';
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => PaywallScreen(source: source),
         );
       default:
         return null;

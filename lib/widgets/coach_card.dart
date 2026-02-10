@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_aicoach/database/database.dart';
 import 'package:my_aicoach/widgets/premium_badge.dart';
+import 'package:my_aicoach/widgets/coach_avatar.dart';
 
 class CoachCard extends StatelessWidget {
   final Coach coach;
@@ -28,23 +29,13 @@ class CoachCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  coach.avatarUrl != null
-                      ? Image.asset(
-                          coach.avatarUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, err, stack) => Container(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(Icons.person,
-                                size: 48,
-                                color: theme.colorScheme.onSurfaceVariant),
-                          ),
-                        )
-                      : Container(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          child: Icon(Icons.person,
-                              size: 48,
-                              color: theme.colorScheme.onSurfaceVariant),
-                        ),
+                  Center(
+                    child: CoachAvatar(
+                      name: coach.name,
+                      size: 64,
+                      avatarUrl: coach.avatarUrl,
+                    ),
+                  ),
                   if (coach.isPremium)
                     const Positioned(
                       top: 8,

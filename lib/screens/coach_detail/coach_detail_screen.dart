@@ -4,6 +4,7 @@ import 'package:my_aicoach/database/database.dart';
 import 'package:my_aicoach/config/routes.dart';
 import 'package:my_aicoach/services/chat_service.dart';
 import 'package:my_aicoach/widgets/premium_badge.dart';
+import 'package:my_aicoach/widgets/coach_avatar.dart';
 
 class CoachDetailScreen extends StatelessWidget {
   const CoachDetailScreen({super.key});
@@ -31,23 +32,13 @@ class CoachDetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  coach.avatarUrl != null
-                      ? Image.asset(
-                          coach.avatarUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, err, stack) => Container(
-                            color: theme.colorScheme.primaryContainer,
-                            child: Icon(Icons.person,
-                                size: 80,
-                                color: theme.colorScheme.onPrimaryContainer),
-                          ),
-                        )
-                      : Container(
-                          color: theme.colorScheme.primaryContainer,
-                          child: Icon(Icons.person,
-                              size: 80,
-                              color: theme.colorScheme.onPrimaryContainer),
-                        ),
+                  Center(
+                    child: CoachAvatar(
+                      name: coach.name,
+                      size: 100,
+                      avatarUrl: coach.avatarUrl,
+                    ),
+                  ),
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(

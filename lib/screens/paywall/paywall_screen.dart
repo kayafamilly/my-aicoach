@@ -6,7 +6,9 @@ import 'package:my_aicoach/providers/subscription_provider.dart';
 import 'package:my_aicoach/config/routes.dart';
 
 class PaywallScreen extends StatefulWidget {
-  const PaywallScreen({super.key});
+  final String source;
+
+  const PaywallScreen({super.key, this.source = 'default'});
 
   @override
   State<PaywallScreen> createState() => _PaywallScreenState();
@@ -109,6 +111,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
     final theme = Theme.of(context);
     final subProvider = Provider.of<SubscriptionProvider>(context);
     final hasTrialStarted = subProvider.tier == SubscriptionTier.trial;
+    final isFromMarket = widget.source == 'market';
+    final isTrialExhausted = hasTrialStarted && !subProvider.canCreateCoach;
 
     return Scaffold(
       appBar: AppBar(
@@ -124,14 +128,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       size: 80, color: theme.colorScheme.primary),
                   const SizedBox(height: 16),
                   Text(
-                    'Create Your Own AI Coaches',
+                    isFromMarket
+                        ? 'Unlock the Community Market'
+                        : 'Create Your Own AI Coaches',
                     style: theme.textTheme.headlineSmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Design custom coaches with your own expertise, personality, and even web search capabilities.',
+                    isFromMarket
+                        ? 'Subscribe to Premium to browse and import coaches created by the community.'
+                        : isTrialExhausted
+                            ? 'You\'ve used your free trial coach. Subscribe to create unlimited coaches and access the Community Market.'
+                            : 'Design custom coaches with your own expertise, personality, and even web search capabilities.',
                     style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.textTheme.bodyLarge?.color
                             ?.withValues(alpha: 0.7)),
@@ -210,7 +220,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  if (!hasTrialStarted)
+                  if (!hasTrialStarted && !isFromMarket && !isTrialExhausted)
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
