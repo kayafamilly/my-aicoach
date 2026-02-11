@@ -37,6 +37,7 @@ migrate_working_dir/
 .env
 .env.*
 !.env.example
+payment_key_json_revenue-cat/
 
 # Symbolication related
 app.*.symbols

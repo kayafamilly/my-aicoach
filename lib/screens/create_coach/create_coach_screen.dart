@@ -23,6 +23,7 @@ class _CreateCoachScreenState extends State<CreateCoachScreen> {
   String _selectedTone = 'Professional';
   bool _enableWebSearch = false;
   String _generatedPrompt = '';
+  bool _showAdvanced = false;
 
   static const List<String> _toneOptions = [
     'Professional',
@@ -281,38 +282,58 @@ class _CreateCoachScreenState extends State<CreateCoachScreen> {
 
             // Step 3: Review & Fine-Tune
             Step(
-              title: const Text('Review & Settings'),
-              subtitle: const Text('Fine-tune and enable features'),
+              title: const Text('Review & Create'),
+              subtitle: const Text('Check your coach and create'),
               isActive: _currentStep >= 2,
               state: _currentStep > 2 ? StepState.complete : StepState.indexed,
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Generated System Prompt',
-                      style: theme.textTheme.labelLarge),
-                  const SizedBox(height: 4),
-                  Text(
-                    'This was auto-generated from your inputs. You can edit it for advanced fine-tuning.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.textTheme.bodySmall?.color
-                            ?.withValues(alpha: 0.7)),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    initialValue: _generatedPrompt,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.check_circle,
+                                  color: theme.colorScheme.primary, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _nameController.text.trim(),
+                                  style: theme.textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text('Domain: ${_domainController.text.trim()}',
+                              style: theme.textTheme.bodyMedium),
+                          const SizedBox(height: 4),
+                          Text('Tone: $_selectedTone',
+                              style: theme.textTheme.bodyMedium),
+                          const SizedBox(height: 4),
+                          Text('Expertise: ${_expertiseController.text.trim()}',
+                              style: theme.textTheme.bodyMedium),
+                          if (_boundariesController.text.trim().isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                                'Boundaries: ${_boundariesController.text.trim()}',
+                                style: theme.textTheme.bodyMedium),
+                          ],
+                        ],
+                      ),
                     ),
-                    maxLines: 6,
-                    style: theme.textTheme.bodySmall,
-                    onChanged: (value) => _generatedPrompt = value,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Enable Web Search'),
                     subtitle: const Text(
-                        'Coach can search the internet for up-to-date information'),
+                        'Your coach will search the internet to give you up-to-date answers'),
                     secondary: Icon(Icons.language,
                         color: _enableWebSearch
                             ? theme.colorScheme.primary
@@ -321,6 +342,40 @@ class _CreateCoachScreenState extends State<CreateCoachScreen> {
                     onChanged: (value) =>
                         setState(() => _enableWebSearch = value),
                   ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () => setState(() => _showAdvanced = !_showAdvanced),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _showAdvanced ? Icons.expand_less : Icons.expand_more,
+                          size: 20,
+                          color: theme.colorScheme.outline,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Advanced: Edit system prompt',
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: theme.colorScheme.outline),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_showAdvanced) ...[
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      initialValue: _generatedPrompt,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        helperText:
+                            'This defines how your coach behaves. Edit only if you know what you are doing.',
+                        helperMaxLines: 2,
+                      ),
+                      maxLines: 6,
+                      style: theme.textTheme.bodySmall,
+                      onChanged: (value) => _generatedPrompt = value,
+                    ),
+                  ],
                 ],
               ),
             ),

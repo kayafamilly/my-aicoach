@@ -1,4 +1,4 @@
-package com.example.my_aicoach
+package com.kayafamily.myaicoach
 
 import io.flutter.embedding.android.FlutterActivity
 
