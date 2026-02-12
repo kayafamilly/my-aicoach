@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:my_aicoach/database/database.dart';
 import 'package:intl/intl.dart';
@@ -38,14 +39,31 @@ class MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              message.content,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: isUser
-                    ? theme.colorScheme.onPrimaryContainer
-                    : theme.colorScheme.onSurfaceVariant,
+            if (message.imageUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  File(message.imageUrl!),
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (ctx, err, stack) => Container(
+                    height: 100,
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    child: const Center(child: Icon(Icons.broken_image)),
+                  ),
+                ),
               ),
-            ),
+              if (message.content.isNotEmpty) const SizedBox(height: 8),
+            ],
+            if (message.content.isNotEmpty)
+              Text(
+                message.content,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: isUser
+                      ? theme.colorScheme.onPrimaryContainer
+                      : theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
             const SizedBox(height: 4),
             Text(
               timeFormat.format(message.createdAt),

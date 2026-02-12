@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class TypingIndicator extends StatelessWidget {
-  const TypingIndicator({super.key});
+  final bool isSearching;
+
+  const TypingIndicator({super.key, this.isSearching = false});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +20,23 @@ class TypingIndicator extends StatelessWidget {
               color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: SpinKitThreeBounce(
-              color: theme.colorScheme.primary,
-              size: 20.0,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isSearching) ...[
+                  Icon(Icons.travel_explore,
+                      size: 16, color: theme.colorScheme.primary),
+                  const SizedBox(width: 6),
+                  Text('Searching...',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: theme.colorScheme.primary)),
+                  const SizedBox(width: 6),
+                ],
+                SpinKitThreeBounce(
+                  color: theme.colorScheme.primary,
+                  size: 20.0,
+                ),
+              ],
             ),
           ),
         ],

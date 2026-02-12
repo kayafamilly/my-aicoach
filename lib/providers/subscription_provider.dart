@@ -37,6 +37,14 @@ class SubscriptionProvider extends ChangeNotifier {
   /// Whether the user can access the Market (premium only, not trial)
   bool get canAccessMarket => _tier == SubscriptionTier.premium;
 
+  /// Whether the user can use advanced chat features (vision, files, voice, calendar, etc.)
+  /// Premium: all coaches. Trial: only custom coaches. Free: none.
+  bool canUseAdvancedFeatures(bool isCustomCoach) {
+    if (_tier == SubscriptionTier.premium) return true;
+    if (_tier == SubscriptionTier.trial && isCustomCoach) return true;
+    return false;
+  }
+
   /// Days remaining in trial, or 0
   int get trialDaysRemaining {
     if (_trialStartDate == null) return trialDurationDays;

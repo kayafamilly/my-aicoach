@@ -9,10 +9,12 @@ import 'package:my_aicoach/services/coach_service.dart';
 import 'package:my_aicoach/services/chat_service.dart';
 import 'package:my_aicoach/services/llm_service.dart';
 import 'package:my_aicoach/services/purchase_service.dart';
+import 'package:my_aicoach/services/notification_service.dart';
 import 'package:my_aicoach/providers/coach_provider.dart';
 import 'package:my_aicoach/providers/subscription_provider.dart';
 import 'package:my_aicoach/providers/chat_provider.dart';
 import 'package:my_aicoach/providers/theme_provider.dart';
+import 'package:my_aicoach/providers/calendar_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +36,9 @@ void main() async {
   // Initialize RevenueCat (safe on non-mobile)
   await PurchaseService.init();
 
+  // Initialize notifications
+  await NotificationService.init();
+
   // Seed database
   final coachService = CoachService(database);
   await coachService.seedCoachesIfNeeded();
@@ -53,6 +58,7 @@ void main() async {
         // State Providers
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider(create: (_) => CalendarProvider()),
         ChangeNotifierProxyProvider<CoachService, CoachProvider>(
           create: (context) => CoachProvider(coachService),
           update: (context, service, previous) =>

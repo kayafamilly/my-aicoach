@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:my_aicoach/config/routes.dart';
+import 'package:my_aicoach/database/database.dart';
 import 'package:my_aicoach/providers/coach_provider.dart';
 import 'package:my_aicoach/providers/subscription_provider.dart';
+import 'package:my_aicoach/services/chat_service.dart';
 import 'package:my_aicoach/widgets/coach_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,6 +17,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
+
+  Future<void> _openCoach(Coach coach) async {
+    final chatService = Provider.of<ChatService>(context, listen: false);
+    final conversation = await chatService.getOrCreateConversation(coach.id);
+    if (mounted) {
+      Navigator.pushNamed(context, AppRoutes.chat, arguments: {
+        'coach': coach,
+        'conversationId': conversation.id,
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -104,11 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final coach = coachProvider.coaches[index];
                                 return CoachCard(
                                   coach: coach,
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                        context, AppRoutes.coachDetail,
-                                        arguments: coach);
-                                  },
+                                  onTap: () => _openCoach(coach),
                                 );
                               },
                             ),
@@ -156,9 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
               selectedIcon: Icon(Icons.add_circle),
               label: 'Create'),
           NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Profile'),
+              icon: Icon(Icons.settings_outlined),
+              selectedIcon: Icon(Icons.settings),
+              label: 'Settings'),
         ],
       ),
     );

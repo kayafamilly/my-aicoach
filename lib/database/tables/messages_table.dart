@@ -7,5 +7,6 @@ class Messages extends Table {
   IntColumn get conversationId => integer().references(Conversations, #id)();
   TextColumn get role => text()(); // 'user' | 'assistant'
   TextColumn get content => text()();
+  TextColumn get imageUrl => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

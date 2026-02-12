@@ -776,6 +776,12 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   late final GeneratedColumn<String> content = GeneratedColumn<String>(
       'content', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageUrlMeta =
+      const VerificationMeta('imageUrl');
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+      'image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -786,7 +792,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, conversationId, role, content, createdAt];
+      [id, conversationId, role, content, imageUrl, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -820,6 +826,10 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
+    if (data.containsKey('image_url')) {
+      context.handle(_imageUrlMeta,
+          imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -841,6 +851,8 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
           .read(DriftSqlType.string, data['${effectivePrefix}role'])!,
       content: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      imageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_url']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -857,12 +869,14 @@ class Message extends DataClass implements Insertable<Message> {
   final int conversationId;
   final String role;
   final String content;
+  final String? imageUrl;
   final DateTime createdAt;
   const Message(
       {required this.id,
       required this.conversationId,
       required this.role,
       required this.content,
+      this.imageUrl,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -871,6 +885,9 @@ class Message extends DataClass implements Insertable<Message> {
     map['conversation_id'] = Variable<int>(conversationId);
     map['role'] = Variable<String>(role);
     map['content'] = Variable<String>(content);
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -881,6 +898,9 @@ class Message extends DataClass implements Insertable<Message> {
       conversationId: Value(conversationId),
       role: Value(role),
       content: Value(content),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
       createdAt: Value(createdAt),
     );
   }
@@ -893,6 +913,7 @@ class Message extends DataClass implements Insertable<Message> {
       conversationId: serializer.fromJson<int>(json['conversationId']),
       role: serializer.fromJson<String>(json['role']),
       content: serializer.fromJson<String>(json['content']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -904,6 +925,7 @@ class Message extends DataClass implements Insertable<Message> {
       'conversationId': serializer.toJson<int>(conversationId),
       'role': serializer.toJson<String>(role),
       'content': serializer.toJson<String>(content),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -913,12 +935,14 @@ class Message extends DataClass implements Insertable<Message> {
           int? conversationId,
           String? role,
           String? content,
+          Value<String?> imageUrl = const Value.absent(),
           DateTime? createdAt}) =>
       Message(
         id: id ?? this.id,
         conversationId: conversationId ?? this.conversationId,
         role: role ?? this.role,
         content: content ?? this.content,
+        imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
         createdAt: createdAt ?? this.createdAt,
       );
   Message copyWithCompanion(MessagesCompanion data) {
@@ -929,6 +953,7 @@ class Message extends DataClass implements Insertable<Message> {
           : this.conversationId,
       role: data.role.present ? data.role.value : this.role,
       content: data.content.present ? data.content.value : this.content,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -940,13 +965,15 @@ class Message extends DataClass implements Insertable<Message> {
           ..write('conversationId: $conversationId, ')
           ..write('role: $role, ')
           ..write('content: $content, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, conversationId, role, content, createdAt);
+  int get hashCode =>
+      Object.hash(id, conversationId, role, content, imageUrl, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -955,6 +982,7 @@ class Message extends DataClass implements Insertable<Message> {
           other.conversationId == this.conversationId &&
           other.role == this.role &&
           other.content == this.content &&
+          other.imageUrl == this.imageUrl &&
           other.createdAt == this.createdAt);
 }
 
@@ -963,12 +991,14 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   final Value<int> conversationId;
   final Value<String> role;
   final Value<String> content;
+  final Value<String?> imageUrl;
   final Value<DateTime> createdAt;
   const MessagesCompanion({
     this.id = const Value.absent(),
     this.conversationId = const Value.absent(),
     this.role = const Value.absent(),
     this.content = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   MessagesCompanion.insert({
@@ -976,6 +1006,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     required int conversationId,
     required String role,
     required String content,
+    this.imageUrl = const Value.absent(),
     this.createdAt = const Value.absent(),
   })  : conversationId = Value(conversationId),
         role = Value(role),
@@ -985,6 +1016,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     Expression<int>? conversationId,
     Expression<String>? role,
     Expression<String>? content,
+    Expression<String>? imageUrl,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -992,6 +1024,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       if (conversationId != null) 'conversation_id': conversationId,
       if (role != null) 'role': role,
       if (content != null) 'content': content,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -1001,12 +1034,14 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       Value<int>? conversationId,
       Value<String>? role,
       Value<String>? content,
+      Value<String?>? imageUrl,
       Value<DateTime>? createdAt}) {
     return MessagesCompanion(
       id: id ?? this.id,
       conversationId: conversationId ?? this.conversationId,
       role: role ?? this.role,
       content: content ?? this.content,
+      imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1026,6 +1061,9 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1039,6 +1077,7 @@ class MessagesCompanion extends UpdateCompanion<Message> {
           ..write('conversationId: $conversationId, ')
           ..write('role: $role, ')
           ..write('content: $content, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1916,6 +1955,7 @@ typedef $$MessagesTableCreateCompanionBuilder = MessagesCompanion Function({
   required int conversationId,
   required String role,
   required String content,
+  Value<String?> imageUrl,
   Value<DateTime> createdAt,
 });
 typedef $$MessagesTableUpdateCompanionBuilder = MessagesCompanion Function({
@@ -1923,6 +1963,7 @@ typedef $$MessagesTableUpdateCompanionBuilder = MessagesCompanion Function({
   Value<int> conversationId,
   Value<String> role,
   Value<String> content,
+  Value<String?> imageUrl,
   Value<DateTime> createdAt,
 });
 
@@ -1963,6 +2004,9 @@ class $$MessagesTableFilterComposer
 
   ColumnFilters<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+      column: $table.imageUrl, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -2006,6 +2050,9 @@ class $$MessagesTableOrderingComposer
   ColumnOrderings<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+      column: $table.imageUrl, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -2047,6 +2094,9 @@ class $$MessagesTableAnnotationComposer
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2099,6 +2149,7 @@ class $$MessagesTableTableManager extends RootTableManager<
             Value<int> conversationId = const Value.absent(),
             Value<String> role = const Value.absent(),
             Value<String> content = const Value.absent(),
+            Value<String?> imageUrl = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               MessagesCompanion(
@@ -2106,6 +2157,7 @@ class $$MessagesTableTableManager extends RootTableManager<
             conversationId: conversationId,
             role: role,
             content: content,
+            imageUrl: imageUrl,
             createdAt: createdAt,
           ),
           createCompanionCallback: ({
@@ -2113,6 +2165,7 @@ class $$MessagesTableTableManager extends RootTableManager<
             required int conversationId,
             required String role,
             required String content,
+            Value<String?> imageUrl = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               MessagesCompanion.insert(
@@ -2120,6 +2173,7 @@ class $$MessagesTableTableManager extends RootTableManager<
             conversationId: conversationId,
             role: role,
             content: content,
+            imageUrl: imageUrl,
             createdAt: createdAt,
           ),
           withReferenceMapper: (p0) => p0

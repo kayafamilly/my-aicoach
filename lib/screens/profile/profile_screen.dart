@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:my_aicoach/providers/subscription_provider.dart';
 import 'package:my_aicoach/providers/theme_provider.dart';
+import 'package:my_aicoach/providers/calendar_provider.dart';
 import 'package:my_aicoach/config/routes.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,7 +15,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Settings'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -79,6 +80,83 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+          const SizedBox(height: 24),
+
+          // Integrations Section
+          Text('Integrations',
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Consumer<CalendarProvider>(
+            builder: (context, calProvider, _) {
+              return Card(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        Icons.calendar_month,
+                        color: calProvider.isConnected
+                            ? Colors.green
+                            : theme.colorScheme.primary,
+                      ),
+                      title: Text(calProvider.isConnected
+                          ? 'Google Calendar Connected'
+                          : 'Connect Google Calendar'),
+                      subtitle: Text(calProvider.isConnected
+                          ? calProvider.userEmail ?? 'Connected'
+                          : 'Sync your schedule with your coach'),
+                      trailing: calProvider.isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                          : calProvider.isConnected
+                              ? TextButton(
+                                  onPressed: () => calProvider.disconnect(),
+                                  child: const Text('Disconnect'),
+                                )
+                              : const Icon(Icons.chevron_right),
+                      onTap: calProvider.isConnected || calProvider.isLoading
+                          ? null
+                          : () async {
+                              final ok = await calProvider.connect();
+                              if (!ok && context.mounted) {
+                                final err = calProvider.lastError ??
+                                    'Connection failed.';
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(err),
+                                    duration: const Duration(seconds: 5),
+                                  ),
+                                );
+                              }
+                            },
+                    ),
+                    if (calProvider.lastError != null &&
+                        !calProvider.isConnected)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded,
+                                size: 16, color: theme.colorScheme.error),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                calProvider.lastError!,
+                                style: theme.textTheme.bodySmall
+                                    ?.copyWith(color: theme.colorScheme.error),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
           const SizedBox(height: 24),
 
